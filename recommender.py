@@ -5,13 +5,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from persona import admin, child, dad
 import warnings
 from fpdf import *
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticks
+import pdfkit
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def gets_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-    return admin
+    return child
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -129,7 +132,41 @@ def generate_report(df_recommended, df_master_data, previously_watched):
     file.close()
 
     print(temp.head())
-    return
+    return temp
+
+
+def generatePDF(recs):
+
+    # Generate plot of similarities
+    similarities = [x for x in list(recs.similarity) if x > 0.4]
+
+    #with plt.style.context('dark_background'):
+    fig, ax = plt.subplots(figsize=(24, 18))
+
+    plt.plot(similarities, color='r')
+
+    # ax.get_xaxis().set_visible(False)
+    ax.yaxis.set_major_formatter(mticks.PercentFormatter(1.0))
+
+    plt.title('Similarity To User Profile', size=30)
+    plt.ylabel('Cosine Similarity (shown as %)', size=26)
+    plt.yticks(fontsize=20)
+    plt.xticks(fontsize=20)
+    plt.xlabel('Movies Processed', size=26)
+    plt.savefig('test.svg')
+
+    # Generate html of dataframe to add to pdf
+    recs_html = recs.to_html()
+    html_header = "<h1 style='text-align:center;'>FlickFinder</h1>"
+    html_byline = "<h2 style='text-align:center;'>Created by Nick Campa 2022</h2>"
+    html = "<img src='test.svg' style='height:80%; width:100%'> <br><br>"
+
+    with open('test.html', 'w') as file:
+        file.write(html_header)
+        file.write(html_byline)
+        file.write(html)
+        file.write(recs_html)
+        file.close()
 
 
 def main():
@@ -154,7 +191,9 @@ def main():
     df_recommendations = (generate_recs(encoded_genres, user_profile))
 
     # Generate report
-    generate_report(df_recommendations, df, persona['titles'])
+    df_merge = generate_report(df_recommendations, df, persona['titles'])
+
+    generatePDF(df_merge)
 
     # Report runtime
     print(datetime.now() - init_timestamp)
