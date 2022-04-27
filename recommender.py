@@ -1,3 +1,4 @@
+from datetime import *
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
@@ -6,7 +7,7 @@ from persona import admin, child, dad
 
 def gets_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-
+    return dad
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -105,11 +106,27 @@ def generate_recs(encoded_genres, user_profile):
     return new_df
 
 
-def report_recs(df_recommended, df_master_data):
-    """This function accepts a dataframe of recommendations based on descending similarities 0-1.
-    It returns detailed data about each movie and its cast, director, etc."""
-    join = df_master_data.loc[df_master_data.title.isin(list(df_recommended.title))]
-    return join
+def report_recs(df_recommended, df_master_data, previously_watched):
+    print(previously_watched)
+    temp = df_recommended.merge(df_master_data[['title', 'description', 'director', 'cast']], on='title').set_index(
+        'title')
+    temp = temp.drop(previously_watched)
+
+    for n in range(10):
+        title = temp.index[n]
+        director = temp.iloc[n, 2]
+        cast = temp.iloc[n, 3].split(',')[0:3]
+
+        print(f"The #{n+1} recommended movie was: {title}")
+
+        print(f"It was directed by {director} and features {cast}")
+        
+        print(f"{temp.iloc[n, 1]}")
+        print('\n')
+
+    print(temp.head())
+    return
+
 
 
 def main():
@@ -117,6 +134,9 @@ def main():
 
     # Get user persona for demo...
     persona = gets_persona()
+
+    # Set Timer for runtime analysis
+    init_timestamp = datetime.now()
 
     # Read data
     df = pd.read_csv('/Users/nicholascampa/Desktop/Datasets/DS496/netflix_titles.csv')
@@ -130,7 +150,15 @@ def main():
     # Generate Recommendations
     df_recommendations = (generate_recs(encoded_genres, user_profile))
 
-    print(report_recs(df_recommendations, df))
+    print(report_recs(df_recommendations, df, persona['titles']))
 
+    # Generate report
+
+        ##TODO:
+            # Export df_recommended to html
+            # Export recommended_html to pdf
+
+    # Report runtime
+    print(datetime.now() - init_timestamp)
 
 main()
