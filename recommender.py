@@ -3,11 +3,15 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from persona import admin, child, dad
+import warnings
+from fpdf import *
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def gets_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-    return dad
+    return admin
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -106,27 +110,26 @@ def generate_recs(encoded_genres, user_profile):
     return new_df
 
 
-def report_recs(df_recommended, df_master_data, previously_watched):
+def generate_report(df_recommended, df_master_data, previously_watched):
     print(previously_watched)
     temp = df_recommended.merge(df_master_data[['title', 'description', 'director', 'cast']], on='title').set_index(
         'title')
     temp = temp.drop(previously_watched)
 
+    file = open('report.txt', 'w')
     for n in range(10):
         title = temp.index[n]
         director = temp.iloc[n, 2]
         cast = temp.iloc[n, 3].split(',')[0:3]
 
-        print(f"The #{n+1} recommended movie was: {title}")
-
-        print(f"It was directed by {director} and features {cast}")
-        
-        print(f"{temp.iloc[n, 1]}")
-        print('\n')
+        file.write(f"The #{n+1} recommended movie was: {title}.\n")
+        file.write(f"It was directed by {director} and features {cast[0]}, {cast[1]}, and {cast[2]}.\n")
+        file.write(f"{temp.iloc[n, 1]}.\n")
+        file.write("\n")
+    file.close()
 
     print(temp.head())
     return
-
 
 
 def main():
@@ -150,13 +153,8 @@ def main():
     # Generate Recommendations
     df_recommendations = (generate_recs(encoded_genres, user_profile))
 
-    print(report_recs(df_recommendations, df, persona['titles']))
-
     # Generate report
-
-        ##TODO:
-            # Export df_recommended to html
-            # Export recommended_html to pdf
+    generate_report(df_recommendations, df, persona['titles'])
 
     # Report runtime
     print(datetime.now() - init_timestamp)
