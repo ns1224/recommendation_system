@@ -61,7 +61,6 @@ child = {
     ]
 }
 
-# This represents a Dad who watches Netflix on occasion, for different types of reasons
 dad = {
     'titles':
     [
@@ -74,7 +73,26 @@ dad = {
         "If I Leave Here Tomorrow: A Film About Lynyrd Skynyrd",
         "Ferris Bueller's Day Off",
         "Jaws",
-        "Midnight Run"
+        "Midnight Run",
+        "The Karate Kid",
+        "The Other Guys",
+        "Grown Ups",
+        "Shutter Island",
+        "Ocean's Eleven",
+        "The Interview",
+        "Django Unchained",
+        "Uncut Gems",
+        "Talladega Nights: The Ballad of Ricky Bobby",
+        "Austin Powers: International Man of Mystery",
+        'Beethoven',
+        "Cloudy with a Chance of Meatballs 2",
+        "Madagascar 3: Europe's Most Wanted",
+        "The Rugrats Movie",
+        "LEGO Marvel Super Heroes: Avengers Reassembled!",
+        "ParaNorman",
+        "Osmosis Jones",
+        "Penguins of Madagascar: The Movie",
+        "Paddleton"
     ],
     'ratings':
     [
@@ -84,6 +102,25 @@ dad = {
         1.8,
         5.0,
         4.8,
+        4.1,
+        4.5,
+        3.8,
+        4.1,
+        3.5,
+        3.8,
+        5.0,
+        4.8,
+        4.1,
+        4.5,
+        3.8,
+        4.1,
+        3.9,
+        4.2,
+        3.8,
+        3.5,
+        5.0,
+        4.8,
+        2.2,
         4.1,
         4.5,
         3.8,

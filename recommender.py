@@ -4,17 +4,14 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from persona import admin, child, dad
 import warnings
-from fpdf import *
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticks
-import pdfkit
-
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def gets_persona():
+def get_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-    return child
+    return admin
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -113,59 +110,71 @@ def generate_recs(encoded_genres, user_profile):
     return new_df
 
 
-def generate_report(df_recommended, df_master_data, previously_watched):
+def merge_data(df_recommended, df_master_data, previously_watched):
     print(previously_watched)
     temp = df_recommended.merge(df_master_data[['title', 'description', 'director', 'cast']], on='title').set_index(
         'title')
-    temp = temp.drop(previously_watched)
-
-    file = open('report.txt', 'w')
-    for n in range(10):
-        title = temp.index[n]
-        director = temp.iloc[n, 2]
-        cast = temp.iloc[n, 3].split(',')[0:3]
-
-        file.write(f"The #{n+1} recommended movie was: {title}.\n")
-        file.write(f"It was directed by {director} and features {cast[0]}, {cast[1]}, and {cast[2]}.\n")
-        file.write(f"{temp.iloc[n, 1]}.\n")
-        file.write("\n")
-    file.close()
+    try:
+        temp = temp.drop(previously_watched)
+    except KeyError:
+        pass
 
     print(temp.head())
     return temp
 
 
-def generatePDF(recs):
-
+def generate_plot(recs):
     # Generate plot of similarities
     similarities = [x for x in list(recs.similarity) if x > 0.4]
 
-    #with plt.style.context('dark_background'):
-    fig, ax = plt.subplots(figsize=(24, 18))
+    # with plt.style.context('dark_background'):
+    fig, ax = plt.subplots(figsize=(18, 18))
 
     plt.plot(similarities, color='r')
 
     # ax.get_xaxis().set_visible(False)
     ax.yaxis.set_major_formatter(mticks.PercentFormatter(1.0))
 
+    # Set plot settings
     plt.title('Similarity To User Profile', size=30)
     plt.ylabel('Cosine Similarity (shown as %)', size=26)
     plt.yticks(fontsize=20)
     plt.xticks(fontsize=20)
     plt.xlabel('Movies Processed', size=26)
-    plt.savefig('test.svg')
+    # Save plot for report
+    plt.savefig('similarity_plot.png')
 
-    # Generate html of dataframe to add to pdf
+
+def generate_HTML(recs):
+    # Generate html of dataframe to add to report
     recs_html = recs.to_html()
-    html_header = "<h1 style='text-align:center;'>FlickFinder</h1>"
-    html_byline = "<h2 style='text-align:center;'>Created by Nick Campa 2022</h2>"
-    html = "<img src='test.svg' style='height:80%; width:100%'> <br><br>"
 
-    with open('test.html', 'w') as file:
+    html_style = """<style>
+        th {text-align:center;}
+        </style>
+    """
+
+    html_header = """
+        <h1 style='float:left; font-family: sans-serif; text-align:center;'>FlickFinder.</h1>
+        <img src='logo.png' style='height:90px; width:90px; float:right; position:relative;'>
+    """
+    html_plot = """
+        <img src='similarity_plot.png' style='height:80%; width:100%; margin-left: 5%;'>
+    """
+
+    # Open html file
+    with open('movie_recommendations.html', 'w') as file:
+
+
+        # Set CSS Style Configurations
+        file.write(html_style)
+        # Create header logo and title
         file.write(html_header)
-        file.write(html_byline)
-        file.write(html)
+        # Add visualization to report
+        file.write(html_plot)
+        # Add dataframe to report
         file.write(recs_html)
+
         file.close()
 
 
@@ -173,7 +182,7 @@ def main():
     """This is the workflow of the program, invoked by the main() at the end of the script."""
 
     # Get user persona for demo...
-    persona = gets_persona()
+    persona = get_persona()
 
     # Set Timer for runtime analysis
     init_timestamp = datetime.now()
@@ -188,12 +197,12 @@ def main():
     user_profile = generate_profile(persona['titles'], persona['ratings'], encoded_genres)
 
     # Generate Recommendations
-    df_recommendations = (generate_recs(encoded_genres, user_profile))
+    df_recommendations = generate_recs(encoded_genres, user_profile)
 
     # Generate report
-    df_merge = generate_report(df_recommendations, df, persona['titles'])
+    df_merge = merge_data(df_recommendations, df, persona['titles'])
 
-    generatePDF(df_merge)
+    generate_HTML(df_merge)
 
     # Report runtime
     print(datetime.now() - init_timestamp)
