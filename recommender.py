@@ -11,7 +11,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def get_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-    return admin
+    return dad
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -119,6 +119,10 @@ def merge_data(df_recommended, df_master_data, previously_watched):
     except KeyError:
         pass
 
+    temp['similarity'] = temp['similarity'].round(4)
+    temp['similarity'] = temp['similarity'].apply(lambda row: '{:.2%}'.format(row))
+
+
     print(temp.head())
     return temp
 
@@ -150,7 +154,8 @@ def generate_HTML(recs):
     recs_html = recs.to_html()
 
     html_style = """<style>
-        th {text-align:center;}
+        th {color: white;
+            background: red;}
         </style>
     """
 
