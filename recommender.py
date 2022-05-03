@@ -111,7 +111,6 @@ def generate_recs(encoded_genres, user_profile):
 
 
 def merge_data(df_recommended, df_master_data, previously_watched):
-    print(previously_watched)
     temp = df_recommended.merge(df_master_data[['title', 'description', 'director', 'cast']], on='title').set_index(
         'title')
     try:
