@@ -11,7 +11,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def get_persona():
     """This function accepts no arguments. It welcomes the user, and returns their choice of user persona"""
-    return dad
+    return admin
     # Welcome User
     print("Welcome to Nick's recommendation system.")
     print("Which persona would you like to test?\n\t[A]dmin\n\t[C]hild\n\t[D]ad")
@@ -122,9 +122,7 @@ def merge_data(df_recommended, df_master_data, previously_watched):
     temp['similarity'] = temp['similarity'].round(4)
     temp['similarity'] = temp['similarity'].apply(lambda row: '{:.2%}'.format(row))
 
-
-    print(temp.head())
-    return temp
+    return temp.iloc[0:100, ]
 
 
 def generate_plot(recs):
@@ -137,11 +135,11 @@ def generate_plot(recs):
     plt.plot(similarities, color='r')
 
     # ax.get_xaxis().set_visible(False)
-    ax.yaxis.set_major_formatter(mticks.PercentFormatter(1.0))
+    ax.yaxis.set_major_formatter(mticks.PercentFormatter(1))
 
     # Set plot settings
     plt.title('Similarity To User Profile', size=30)
-    plt.ylabel('Cosine Similarity (shown as %)', size=26)
+    plt.ylabel('Cosine Similarity', size=26)
     plt.yticks(fontsize=20)
     plt.xticks(fontsize=20)
     plt.xlabel('Movies Processed', size=26)
@@ -153,23 +151,30 @@ def generate_HTML(recs):
     # Generate html of dataframe to add to report
     recs_html = recs.to_html()
 
-    html_style = """<style>
-        th {color: white;
-            background: red;}
-        </style>
+    # The img in style is superceded by in line style
+    html_style = """
+    <style>
+        h1 {float:left; font-family: sans-serif; text-align:center; margin-left:10%;}
+        img {height:90px; width:90px; float:right; position:relative; margin-right:5%;}
+        table {border-collapse:collapse;}
+        th {color: white; background: red; text-align:center;}
+        tr {text-align:center;}
+    </style>
     """
 
+    # Insert title and logo here
     html_header = """
-        <h1 style='float:left; font-family: sans-serif; text-align:center;'>FlickFinder.</h1>
-        <img src='logo.png' style='height:90px; width:90px; float:right; position:relative;'>
+        <header><h1>FlickFinder.</h1>
+        <img src='logo.png'>
     """
+
+    # In line here controls style rather than style block
     html_plot = """
-        <img src='similarity_plot.png' style='height:80%; width:100%; margin-left: 5%;'>
+        <img src='similarity_plot.png' style='height:87%; width:90%; margin-left: 5%;'></header>
     """
 
     # Open html file
     with open('movie_recommendations.html', 'w') as file:
-
 
         # Set CSS Style Configurations
         file.write(html_style)
@@ -179,7 +184,7 @@ def generate_HTML(recs):
         file.write(html_plot)
         # Add dataframe to report
         file.write(recs_html)
-
+        # Close file
         file.close()
 
 
